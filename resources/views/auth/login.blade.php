@@ -1,47 +1,45 @@
-<x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+@extends('layouts.layout')
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
+@section('title', 'Вход - Клан WOT Blitz Kak-Tak To')
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+@section('content')
+<div class="container d-flex justify-content-center align-items-center" style="height: 80vh;">
+    <div class="col-md-6">
+        <div class="card text-center shadow-lg border-0 p-4">
+            <div class="card-body">
+                <i class="fa-solid fa-user-lock fa-3x text-danger mb-3"></i>
+                <h3 class="card-title">Вход в аккаунт</h3>
+                <p class="text-muted">Введите свои данные для входа в систему</p>
+
+                <!-- Форма входа -->
+                <form method="POST" action="{{ route('login') }}">
+                    @csrf
+
+                    <div class="form-group text-left">
+                        <label for="email"><i class="fa-solid fa-envelope"></i> Email</label>
+                        <input type="email" id="email" class="form-control" name="email" value="{{ old('email') }}" required autofocus>
+                    </div>
+
+                    <div class="form-group text-left">
+                        <label for="password"><i class="fa-solid fa-lock"></i> Пароль</label>
+                        <input type="password" id="password" class="form-control" name="password" required>
+                    </div>
+
+                    <div class="form-group form-check text-left">
+                        <input type="checkbox" class="form-check-input" id="remember_me" name="remember">
+                        <label class="form-check-label" for="remember_me">Запомнить меня</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-danger btn-block">Войти</button>
+                </form>
+
+                <div class="mt-2">
+                    @if (Route::has('password.request'))
+                        <a href="{{ route('password.request') }}" class="text-muted">Забыли пароль?</a>
+                    @endif
+                </div>
+            </div>
         </div>
-
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800" name="remember">
-                <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">{{ __('Remember me') }}</span>
-            </label>
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+    </div>
+</div>
+@endsection
