@@ -15,7 +15,7 @@ class NewsController extends Controller
     public function index()
     {
         $news = News::with('user')->latest()->paginate(10);
-        return $this->sendResponse($news, 'Список новостей');
+        return view('news.index', compact('news'));
     }
 
     /**
@@ -26,7 +26,7 @@ class NewsController extends Controller
         $request->validate([
             'title'   => 'required|string|max:255',
             'content' => 'required|string',
-            'image'   => 'nullable|image|max:2048', // Макс. 2MB
+            'image'   => 'nullable|image|max:2048',
         ]);
 
         $news = News::create([
@@ -36,7 +36,7 @@ class NewsController extends Controller
             'image'   => $this->handleImageUpload($request),
         ]);
 
-        return $this->sendResponse($news, 'Новость создана');
+        return redirect()->route('news.index')->with('success', 'Новость создана');
     }
 
     /**
@@ -45,7 +45,7 @@ class NewsController extends Controller
     public function show($id)
     {
         $news = News::with('user')->findOrFail($id);
-        return $this->sendResponse($news, 'Детали новости');
+        return view('news.show', compact('news'));
     }
 
     /**
@@ -69,7 +69,7 @@ class NewsController extends Controller
 
         $news->update($request->only(['title', 'content', 'image']));
 
-        return $this->sendResponse($news, 'Новость обновлена');
+        return redirect()->route('news.index')->with('success', 'Новость обновлена');
     }
 
     /**
@@ -83,7 +83,7 @@ class NewsController extends Controller
         $this->deleteOldImage($news->image);
         $news->delete();
 
-        return $this->sendResponse([], 'Новость удалена');
+        return redirect()->route('news.index')->with('success', 'Новость удалена');
     }
 
     /**
@@ -92,7 +92,7 @@ class NewsController extends Controller
     private function authorizeNewsAction(News $news)
     {
         if (Auth::id() !== $news->user_id && !Auth::user()->is_admin) {
-            return $this->sendError('Доступ запрещен', [], 403);
+            abort(403, 'Доступ запрещен');
         }
     }
 
@@ -109,7 +109,7 @@ class NewsController extends Controller
      */
     private function deleteOldImage(?string $imagePath)
     {
-        if ($imagePath && Storage::disk('public')->exists($imagePath)) {
+        if ($imagePath) {
             Storage::disk('public')->delete($imagePath);
         }
     }

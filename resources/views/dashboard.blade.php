@@ -6,9 +6,9 @@
 <div class="d-flex align-items-center justify-content-center vh-100">
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-7"> <!-- Уменьшил ширину карточки -->
+            <div class="col-md-6"> <!-- Уменьшил ширину карточки -->
                 <div class="card shadow-lg" style="max-height: 70vh; overflow-y: auto;"> <!-- Ограничил высоту и добавил прокрутку только внутри -->
-                    <div class="card-header bg-danger text-white text-center py-2">
+                    <div class="card-header bg-warning text-white text-center py-2">
                         <h4 class="mb-0">Личный кабинет</h4> <!-- Уменьшил заголовок -->
                     </div>
                     <div class="card-body p-3"> <!-- Уменьшил отступы -->

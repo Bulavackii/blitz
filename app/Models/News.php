@@ -12,9 +12,6 @@ class News extends Model
 {
     use HasFactory;
 
-    /**
-     * Разрешаем массовое заполнение
-     */
     protected $fillable = ['user_id', 'title', 'content', 'image'];
 
     /**
@@ -22,7 +19,7 @@ class News extends Model
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class)->select(['id', 'name']); // Загружаем только нужные поля
+        return $this->belongsTo(User::class)->select(['id', 'name']);
     }
 
     /**
@@ -30,7 +27,7 @@ class News extends Model
      */
     public function setTitleAttribute($value)
     {
-        $this->attributes['title'] = strip_tags($value); // Убираем HTML-теги
+        $this->attributes['title'] = strip_tags($value);
     }
 
     public function setContentAttribute($value)
@@ -51,7 +48,6 @@ class News extends Model
      */
     public function getFormattedCreatedAtAttribute(): string
     {
-        Carbon::setLocale('ru');
         return Carbon::parse($this->created_at)->diffForHumans();
     }
 

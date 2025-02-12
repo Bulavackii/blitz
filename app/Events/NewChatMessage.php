@@ -3,9 +3,9 @@
 namespace App\Events;
 
 use App\Models\Message;
-use Illuminate\Broadcasting\PresenceChannel;
+use Illuminate\Broadcasting\Channel; // Если не нужен список пользователей, замени PresenceChannel на Channel
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\SerializesModels;
+use App\Traits\SerializesModels;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 
@@ -26,11 +26,11 @@ class NewChatMessage implements ShouldBroadcast
     /**
      * Определяем канал трансляции события
      *
-     * @return PresenceChannel
+     * @return Channel
      */
-    public function broadcastOn(): PresenceChannel
+    public function broadcastOn(): Channel
     {
-        return new PresenceChannel('chat');
+        return new Channel('chat'); // Если нужен список участников - верни PresenceChannel
     }
 
     /**
@@ -40,7 +40,7 @@ class NewChatMessage implements ShouldBroadcast
      */
     public function broadcastWhen(): bool
     {
-        return $this->message->wasRecentlyCreated;
+        return isset($this->message->id) && $this->message->wasRecentlyCreated;
     }
 
     /**
@@ -60,12 +60,12 @@ class NewChatMessage implements ShouldBroadcast
      */
     public function broadcastWith(): array
     {
-        return array_filter([
+        return [
             'id'         => $this->message->id,
             'user_id'    => $this->message->user_id,
             'username'   => $this->message->user->name ?? 'Unknown',
             'content'    => $this->message->content,
-            'created_at' => optional($this->message->created_at)->toISOString(),
-        ]);
+            'created_at' => $this->message->created_at?->toISOString(),
+        ];
     }
 }

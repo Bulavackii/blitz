@@ -10,6 +10,7 @@ use App\Http\Controllers\ClanController;
 use App\Http\Controllers\ApplyController;
 use App\Http\Controllers\InterviewController;
 use App\Http\Controllers\BattleController;
+use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
     return view('layouts.home');
@@ -31,6 +32,12 @@ Route::get('/stats', [StatsController::class, 'index'])->name('stats.index');
 Route::middleware('auth')->group(function () {
     Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
     Route::post('/chat/send', [ChatController::class, 'sendMessage'])->name('chat.send');
+    Route::post('/user/heartbeat', function () {
+        if (Auth::check()) {
+            Auth::user()->update(['is_online' => true]);
+        }
+        return response()->json(['status' => 'ok']);
+    })->middleware('auth');
 });
 
 // Новости
@@ -56,6 +63,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar'); // ✅ Исправлен нейминг
+    Route::post('/profile/update-avatar', [ProfileController::class, 'updateAvatar'])->name('profile.updateAvatar');
 });
 
 require __DIR__.'/auth.php';
