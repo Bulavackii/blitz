@@ -5,6 +5,22 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CallController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\NewsController;
+use App\Http\Controllers\StatsController;
+use App\Http\Controllers\ClanController;
+use App\Http\Controllers\ApplyController;
+use App\Http\Controllers\InterviewController;
+use App\Http\Controllers\BattleController;
+
+Route::get('/battle', [BattleController::class, 'index'])->name('battle.index');
+
+Route::get('/apply', [ApplyController::class, 'show'])->name('apply.show');
+Route::post('/apply', [ApplyController::class, 'submit'])->name('apply.submit');
+
+Route::get('/interview', [InterviewController::class, 'index'])->name('interview.index');
+
+Route::get('/clan', [ClanController::class, 'index'])->name('clan.index');
+
+Route::get('/stats', [StatsController::class, 'index'])->name('stats.index');
 
 // Чат
 Route::middleware('auth')->group(function () {

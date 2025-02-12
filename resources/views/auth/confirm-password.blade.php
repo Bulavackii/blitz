@@ -1,27 +1,31 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-        {{ __('This is a secure area of the application. Please confirm your password before continuing.') }}
+@extends('layouts.layout')
+
+@section('title', 'Подтверждение пароля')
+
+@section('content')
+<div class="container mt-5 d-flex justify-content-center align-items-center" style="min-height: 50vh;">
+    <div class="col-md-6">
+        <div class="card text-center shadow-lg border-0 p-4">
+            <div class="card-body">
+                <i class="fa-solid fa-lock fa-4x text-danger mb-3"></i>
+                <h3 class="card-title">Подтверждение пароля</h3>
+                <p class="text-muted">Это защищённая область приложения. Пожалуйста, подтвердите свой пароль перед продолжением.</p>
+
+                <form method="POST" action="{{ route('password.confirm') }}">
+                    @csrf
+
+                    <div class="form-group text-left">
+                        <label for="password"><i class="fa-solid fa-lock"></i> Пароль</label>
+                        <input type="password" id="password" class="form-control" name="password" required autocomplete="current-password">
+                        @error('password')
+                            <div class="text-danger mt-2">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <button type="submit" class="btn btn-danger btn-block">Подтвердить</button>
+                </form>
+            </div>
+        </div>
     </div>
-
-    <form method="POST" action="{{ route('password.confirm') }}">
-        @csrf
-
-        <!-- Password -->
-        <div>
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <div class="flex justify-end mt-4">
-            <x-primary-button>
-                {{ __('Confirm') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+</div>
+@endsection
