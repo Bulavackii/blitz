@@ -15,16 +15,33 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/stats"><i class="fa-solid fa-chart-line"></i> Твоя статистика</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('register') }}">
-                        <i class="fa-solid fa-user-plus"></i> Регать
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('dashboard') }}">
-                        <i class="fa-solid fa-right-to-bracket"></i> Войти
-                    </a>
-                </li>
+
+                @guest
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('register') }}">
+                            <i class="fa-solid fa-user-plus"></i> Регаться
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('login') }}">
+                            <i class="fa-solid fa-right-to-bracket"></i> Войти
+                        </a>
+                    </li>
+                @else
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('dashboard') }}">
+                            <i class="fa-solid fa-user"></i> Личный кабинет
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                            @csrf
+                            <button type="submit" class="nav-link btn btn-link text-danger">
+                                <i class="fa-solid fa-right-from-bracket"></i> Выйти
+                            </button>
+                        </form>
+                    </li>
+                @endguest
             </ul>
         </div>
     </div>

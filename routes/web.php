@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CallController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\NewsController;
@@ -11,18 +11,23 @@ use App\Http\Controllers\ApplyController;
 use App\Http\Controllers\InterviewController;
 use App\Http\Controllers\BattleController;
 
-Route::get('/battle', [BattleController::class, 'index'])->name('battle.index');
+Route::get('/', function () {
+    return view('layouts.home');
+})->name('home');
 
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+// Остальные маршруты
+Route::get('/battle', [BattleController::class, 'index'])->name('battle.index');
 Route::get('/apply', [ApplyController::class, 'show'])->name('apply.show');
 Route::post('/apply', [ApplyController::class, 'submit'])->name('apply.submit');
-
 Route::get('/interview', [InterviewController::class, 'index'])->name('interview.index');
-
 Route::get('/clan', [ClanController::class, 'index'])->name('clan.index');
-
 Route::get('/stats', [StatsController::class, 'index'])->name('stats.index');
 
-// Чат
+// Чат (только для авторизованных пользователей)
 Route::middleware('auth')->group(function () {
     Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
     Route::post('/chat/send', [ChatController::class, 'sendMessage'])->name('chat.send');
@@ -44,18 +49,13 @@ Route::middleware('auth')->group(function () {
     Route::put('/call/end/{id}', [CallController::class, 'endCall'])->name('call.end');
 });
 
-Route::get('/', function () {
-    return view('layouts.home');
-});
-
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
+// Профиль (только для авторизованных пользователей)
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile'); // ✅ Добавлен маршрут для показа профиля
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar'); // ✅ Исправлен нейминг
 });
 
 require __DIR__.'/auth.php';

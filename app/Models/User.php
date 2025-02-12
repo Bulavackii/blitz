@@ -8,10 +8,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * Разрешаем массовое заполнение
@@ -34,13 +35,10 @@ class User extends Authenticatable
     /**
      * Автоматическое преобразование полей
      */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
 
     /**
      * Связь: пользователь может иметь несколько сообщений
@@ -79,8 +77,8 @@ class User extends Authenticatable
      */
     public function setAvatarAttribute($value)
     {
-        if ($this->avatar && $value !== $this->avatar) {
-            Storage::disk('public')->delete($this->avatar);
+        if ($this->attributes['avatar'] ?? false) {
+            Storage::disk('public')->delete($this->attributes['avatar']);
         }
 
         $this->attributes['avatar'] = $value;

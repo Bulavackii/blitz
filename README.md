@@ -6,6 +6,9 @@ cd wot_blitz_clan_site
 composer require livewire/livewire  # Добавляет поддержку Livewire для динамических компонентов
 composer require beyondcode/laravel-websockets  # Устанавливает WebSockets для чата
 composer require pusher/pusher-php-server  # Подключает Pusher для работы с WebSockets
+composer require laravel/sanctum
+php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"
+php artisan migrate
 npm install && npm run dev  # Устанавливает frontend-зависимости и компилирует файлы
 
 # 3. Настройка .env

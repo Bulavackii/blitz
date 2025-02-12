@@ -1,29 +1,69 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Profile') }}
-        </h2>
-    </x-slot>
+@extends('layouts.layout')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.update-profile-information-form')
+@section('title', 'Редактирование профиля')
+
+@section('content')
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-warning text-dark text-center">
+                    <h3>Редактирование профиля</h3>
                 </div>
-            </div>
+                <div class="card-body">
+                    <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        @method('PUT')
 
-            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.update-password-form')
-                </div>
-            </div>
+                        <!-- Аватар -->
+                        <div class="text-center mb-3">
+                            <img src="{{ auth()->user()->avatar ? asset('storage/' . auth()->user()->avatar) : asset('/images/default-avatar.jpg') }}"
+                                 class="rounded-circle" width="120" height="120" alt="Аватар">
+                            <input type="file" name="avatar" class="form-control mt-2">
+                        </div>
 
-            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.delete-user-form')
+                        <!-- Ник -->
+                        <div class="mb-3">
+                            <label class="form-label">Никнейм</label>
+                            <input type="text" name="nickname" class="form-control" value="{{ old('nickname', auth()->user()->nickname) }}">
+                        </div>
+
+                        <!-- Возраст -->
+                        <div class="mb-3">
+                            <label class="form-label">Возраст</label>
+                            <input type="number" name="age" class="form-control" value="{{ old('age', auth()->user()->age) }}">
+                        </div>
+
+                        <!-- Должность -->
+                        <div class="mb-3">
+                            <label class="form-label">Должность</label>
+                            <input type="text" name="position" class="form-control" value="{{ old('position', auth()->user()->position) }}">
+                        </div>
+
+                        <!-- Советы -->
+                        <div class="mb-3">
+                            <label class="form-label">Советы</label>
+                            <textarea name="tips" class="form-control">{{ old('tips', auth()->user()->tips) }}</textarea>
+                        </div>
+
+                        <!-- Ключ приглашения -->
+                        <div class="mb-3">
+                            <label class="form-label">Активировать ключ приглашения?</label>
+                            <select name="invite_key_active" class="form-control">
+                                <option value="1" {{ auth()->user()->invite_key_active ? 'selected' : '' }}>Да</option>
+                                <option value="0" {{ !auth()->user()->invite_key_active ? 'selected' : '' }}>Нет</option>
+                            </select>
+                        </div>
+
+                        <!-- Кнопки -->
+                        <div class="text-center mt-3">
+                            <button type="submit" class="btn btn-success">Сохранить изменения</button>
+                            <a href="{{ route('profile.edit') }}" class="btn btn-secondary">Отмена</a>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
-</x-app-layout>
+</div>
+@endsection
