@@ -13,21 +13,44 @@
                 <div class="card-body p-3">
                     <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
                         @csrf
-                        @method('PUT')
+                        @method('PATCH')
 
                         <!-- Аватар -->
                         <div class="text-center mb-3">
                             <img src="{{ auth()->user()->avatar ? asset('storage/' . auth()->user()->avatar) : asset('/images/default-avatar.jpg') }}"
                                  class="rounded-circle mb-2" width="90" height="90" alt="Аватар">
 
-                            <!-- Выровненный input file -->
                             <div class="d-flex flex-column align-items-center">
                                 <label class="btn btn-outline-primary btn-sm w-100">
                                     Выбрать файл <input type="file" name="avatar" class="d-none">
                                 </label>
                                 <button class="btn btn-primary btn-sm w-100 mt-2" type="submit">Обновить</button>
+
+                                @if(auth()->user()->avatar)
+                                <!-- Форма для удаления аватара -->
+                                <form action="{{ route('profile.deleteAvatar') }}" method="POST" class="mt-2">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger w-100" onclick="return confirm('Вы уверены?')">
+                                        Удалить аватар
+                                    </button>
+                                </form>
+                                @endif
                             </div>
                         </div>
+
+                        <!-- Вывод уведомлений -->
+                        @if(session('success'))
+                            <div class="alert alert-success mt-2">
+                                {{ session('success') }}
+                            </div>
+                        @endif
+
+                        @if(session('info'))
+                            <div class="alert alert-info mt-2">
+                                {{ session('info') }}
+                            </div>
+                        @endif
 
                         <!-- Ник -->
                         <div class="mb-2">

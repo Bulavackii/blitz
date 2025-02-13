@@ -18,8 +18,11 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
+        /** @var User $user */
+        $user = Auth::user(); // <-- явное получение пользователя
+
         return view('profile.edit', [
-            'user' => $request->user(),
+            'user' => $user,
         ]);
     }
 
@@ -28,7 +31,9 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $user = $request->user();
+        /** @var User $user */
+        $user = Auth::user(); // <-- явное получение пользователя
+
         $user->fill($request->validated());
 
         if ($user->isDirty('email')) {
@@ -37,7 +42,7 @@ class ProfileController extends Controller
 
         $user->save();
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        return Redirect::route('profile.edit')->with('success', 'Профиль успешно обновлен.');
     }
 
     /**
@@ -45,11 +50,13 @@ class ProfileController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-        $request->validateWithBag('userDeletion', [
+        /** @var User $user */
+        $user = Auth::user();
+
+        // Проверяем пароль
+        $request->validate([
             'password' => ['required', 'current_password'],
         ]);
-
-        $user = $request->user();
 
         Auth::logout();
 
@@ -58,7 +65,7 @@ class ProfileController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return Redirect::to('/');
+        return Redirect::to('/')->with('info', 'Ваш личный кабинет успешно удален.');
     }
 
     /**
@@ -70,20 +77,37 @@ class ProfileController extends Controller
             'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
+        /** @var User $user */
         $user = Auth::user();
 
-        // Удаляем старый аватар, если он существует
+        // Удаление старого аватара
         if ($user->avatar) {
             Storage::delete('public/' . $user->avatar);
         }
 
-        // Сохраняем новый аватар
+        // Загрузка нового
         $avatarPath = $request->file('avatar')->store('avatars', 'public');
-
-        // Обновляем пользователя
         $user->avatar = $avatarPath;
         $user->save();
 
-        return redirect()->route('profile.edit')->with('success', 'Аватар успешно обновлен!');
+        return redirect()->route('profile.edit')->with('info', 'Аватар успешно обновлен.');
     }
+
+    /**
+     * Удаление аватара пользователя.
+     */
+    public function deleteAvatar(Request $request): RedirectResponse
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        if ($user->avatar) {
+            Storage::delete('public/' . $user->avatar);
+            $user->avatar = null;
+            $user->save();
+        }
+
+        return redirect()->route('profile.edit')->with('success', 'Аватар успешно удален.');
+    }
+
 }

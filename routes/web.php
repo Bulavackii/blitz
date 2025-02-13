@@ -34,7 +34,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/chat/send', [ChatController::class, 'sendMessage'])->name('chat.send');
     Route::post('/user/heartbeat', function () {
         if (Auth::check()) {
-            Auth::user()->update(['is_online' => true]);
+            /** @var \App\Models\User $user */
+            $user = Auth::user();
+            $user->update(['is_online' => true]);
         }
         return response()->json(['status' => 'ok']);
     })->middleware('auth');
@@ -64,6 +66,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar'); // ✅ Исправлен нейминг
     Route::post('/profile/update-avatar', [ProfileController::class, 'updateAvatar'])->name('profile.updateAvatar');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile/avatar', [ProfileController::class, 'deleteAvatar'])->name('profile.deleteAvatar');
 });
 
 require __DIR__.'/auth.php';

@@ -17,8 +17,10 @@
                             <form action="{{ route('profile.updateAvatar') }}" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <div class="avatar-wrapper mb-2">
-                                    <img src="{{ auth()->user()->avatar ? asset('storage/' . auth()->user()->avatar) : '/images/default-avatar.jpg' }}"
+                                    <img src="{{ auth()->user()->avatar ? asset('storage/' . auth()->user()->avatar) : asset('images/default-avatar.jpg') }}"
                                          class="rounded-circle" width="120" height="120" alt="Аватар"> <!-- Уменьшил размер аватара -->
+                                    <input type="file" name="avatar" class="form-control mt-2" required>
+                                    <button type="submit" class="btn btn-sm btn-primary mt-2">Обновить аватар</button>
                                 </div>
                             </form>
 
@@ -59,6 +61,7 @@
                             <form action="{{ route('profile.destroy') }}" method="POST" class="d-inline">
                                 @csrf
                                 @method('DELETE')
+                                <input type="password" name="password" class="form-control my-2" placeholder="Введите пароль" required>
                                 <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Вы уверены?')">Удалить</button>
                             </form>
                         </div>

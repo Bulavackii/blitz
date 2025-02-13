@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use App\Models\User;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -32,8 +33,9 @@ class AuthenticatedSessionController extends Controller
     if (Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
         $request->session()->regenerate();
 
-        // Обновляем статус онлайна
-        Auth::user()->update(['is_online' => true]);
+        /** @var User $user */
+        $user = Auth::user(); // Явно указываем, что это объект User
+        $user->update(['is_online' => true]);
 
         return redirect()->intended(route('dashboard'));
     }
@@ -46,6 +48,7 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request)
 {
+    /** @var User $user */
     $user = Auth::user();
     if ($user) {
         $user->update(['is_online' => false]); // Обновляем статус

@@ -47,3 +47,7 @@ php artisan serve  # Запускаем Laravel-сервер
 
 
 composer require laravel/breeze --dev
+
+php artisan storage:link
+chmod -R 775 storage
+chmod -R 775 public/storage
