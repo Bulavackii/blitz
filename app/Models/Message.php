@@ -22,7 +22,7 @@ class Message extends Model
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class)->select(['id', 'name']); // Загружаем только нужные поля
+        return $this->belongsTo(User::class)->select(['id', 'name', 'avatar']); // Загружаем только нужные поля
     }
 
     /**

@@ -12,7 +12,10 @@
                 <div class="col-md-8">
                     <div id="chat-box" class="border rounded p-3 mb-3 bg-light" style="height: 400px; overflow-y: auto;">
                         @foreach ($messages as $message)
-                            <div class="mb-2">
+                            <div class="mb-2 d-flex align-items-center">
+                                <img src="{{ asset('storage/' . ($message->user->avatar ?? 'default-avatar.png')) }}"
+     alt="avatar" class="rounded-circle me-2" width="30" height="30">
+
                                 <strong>{{ $message->user->name }}:</strong> {!! $message->content !!}
                             </div>
                         @endforeach
@@ -43,7 +46,14 @@
                         <div class="card-body">
                             <ul id="online-users" class="list-group">
                                 @foreach ($onlineUsers as $user)
-                                    <li class="list-group-item">{{ $user->name }}</li>
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <img src="{{ asset('storage/' . ($message->user->avatar ?? 'default-avatar.png')) }}"
+     alt="avatar" class="rounded-circle me-2" width="30" height="30">
+
+
+                                        <span>{{ $user->name }}</span>
+                                        <span class="ms-auto online-status {{ $user->is_online ? 'bg-success' : 'bg-secondary' }}"></span>
+                                    </li>
                                 @endforeach
                             </ul>
                         </div>
@@ -53,12 +63,17 @@
         </div>
     </div>
 
+    <style>
+        .online-status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+    </style>
+
     <!-- Подключение Pusher -->
     <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
-    <!-- Подключение Emoji Picker -->
-    <script type="module">
-        import 'https://cdn.jsdelivr.net/npm/@joeattardi/emoji-picker-element@latest';
-    </script>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -72,87 +87,42 @@
 
             var channel = pusher.subscribe('chat');
             channel.bind('NewChatMessage', function (data) {
+                console.log(data); // Проверяем, какие данные приходят
+
                 let messageElement = document.createElement('div');
-                messageElement.innerHTML = `<strong>${data.username}:</strong> ${data.content}`;
+                messageElement.classList.add("mb-2", "d-flex", "align-items-center");
+                messageElement.innerHTML = `
+                    <img src="${data.avatar}" class="rounded-circle me-2" width="30" height="30">
+                    <strong>${data.username}:</strong> ${data.content}`;
                 chatBox.appendChild(messageElement);
                 chatBox.scrollTop = chatBox.scrollHeight;
             });
 
-            document.getElementById("chat-form").addEventListener("submit", function (e) {
-                e.preventDefault();
-                let message = document.getElementById("message-input").value;
+            channel.bind('UserStatusUpdated', function (data) {
+                let onlineUsersList = document.getElementById('online-users');
+                onlineUsersList.innerHTML = "";
+                data.users.forEach(user => {
+                    let userElement = document.createElement("li");
+                    userElement.classList.add("list-group-item", "d-flex", "align-items-center");
 
-                fetch("{{ route('chat.send') }}", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                    },
-                    body: JSON.stringify({ content: message })
-                }).then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        alert(data.error);
-                    } else {
-                        let messageElement = document.createElement('div');
-                        messageElement.innerHTML = `<strong>{{ auth()->user()->name }}:</strong> ${data.content}`;
-                        chatBox.appendChild(messageElement);
-                        chatBox.scrollTop = chatBox.scrollHeight;
-                    }
-                });
+                    let img = document.createElement("img");
+                    img.src = user.avatar ?? "/default-avatar.png";
+                    img.classList.add("rounded-circle", "me-2");
+                    img.width = 40;
+                    img.height = 40;
 
-                document.getElementById("message-input").value = '';
-            });
+                    let nameSpan = document.createElement("span");
+                    nameSpan.innerText = user.name;
 
-            // ========== Эмодзи Picker ==========
-            const emojiButton = document.getElementById('emoji-button');
-            emojiButton.addEventListener('click', () => {
-                const picker = document.createElement('emoji-picker');
-                picker.style.position = 'absolute';
-                picker.style.bottom = '60px';
-                picker.style.right = '20px';
-                document.body.appendChild(picker);
+                    let statusSpan = document.createElement("span");
+                    statusSpan.classList.add("ms-auto", "online-status");
+                    statusSpan.classList.add(user.is_online ? "bg-success" : "bg-secondary");
 
-                picker.addEventListener('emoji-click', event => {
-                    document.getElementById("message-input").value += event.detail.unicode;
-                    picker.remove();
-                });
+                    userElement.appendChild(img);
+                    userElement.appendChild(nameSpan);
+                    userElement.appendChild(statusSpan);
 
-                document.addEventListener('click', (event) => {
-                    if (!picker.contains(event.target) && event.target !== emojiButton) {
-                        picker.remove();
-                    }
-                }, { once: true });
-            });
-
-            // ========== GIF Picker (Giphy API) ==========
-            const gifButton = document.getElementById("gif-button");
-            const gifContainer = document.getElementById("gif-container");
-
-            gifButton.addEventListener("click", function () {
-                gifContainer.innerHTML = '<input type="text" id="gif-search" class="form-control mb-2" placeholder="Введите запрос для GIF">';
-                gifContainer.classList.remove("d-none");
-
-                document.getElementById("gif-search").addEventListener("keyup", function () {
-                    let searchTerm = this.value;
-                    if (searchTerm.length > 2) {
-                        fetch(`https://api.giphy.com/v1/gifs/search?api_key=YOUR_GIPHY_API_KEY&q=${searchTerm}&limit=5`)
-                            .then(response => response.json())
-                            .then(data => {
-                                gifContainer.innerHTML = '<input type="text" id="gif-search" class="form-control mb-2" placeholder="Введите запрос для GIF">';
-                                data.data.forEach(gif => {
-                                    let img = document.createElement("img");
-                                    img.src = gif.images.fixed_height.url;
-                                    img.classList.add("m-1", "gif-choice");
-                                    img.style.cursor = "pointer";
-                                    img.onclick = () => {
-                                        document.getElementById("message-input").value += `<img src="${gif.images.fixed_height.url}">`;
-                                        gifContainer.classList.add("d-none");
-                                    };
-                                    gifContainer.appendChild(img);
-                                });
-                            });
-                    }
+                    onlineUsersList.appendChild(userElement);
                 });
             });
         });

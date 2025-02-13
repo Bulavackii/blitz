@@ -11,6 +11,7 @@ use App\Http\Controllers\ApplyController;
 use App\Http\Controllers\InterviewController;
 use App\Http\Controllers\BattleController;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\UserController;
 
 Route::get('/', function () {
     return view('layouts.home');
@@ -69,5 +70,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile/avatar', [ProfileController::class, 'deleteAvatar'])->name('profile.deleteAvatar');
 });
+
+Route::get('/update-status', [UserController::class, 'updateStatus']);
 
 require __DIR__.'/auth.php';
